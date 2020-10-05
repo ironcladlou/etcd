@@ -335,6 +335,8 @@ type Config struct {
 	// Only valid if "logger" option is "capnslog".
 	// WARN: DO NOT USE THIS!
 	LogPkgLevels string `json:"log-package-levels"`
+
+	InsecureHealthEndpoint string `json:"insecure-health-endpoint"`
 }
 
 // configYAML holds the config suitable for yaml parsing

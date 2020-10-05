@@ -206,6 +206,7 @@ func StartEtcd(inCfg *Config) (e *Etcd, err error) {
 		EnableGRPCGateway:          cfg.EnableGRPCGateway,
 		EnableLeaseCheckpoint:      cfg.ExperimentalEnableLeaseCheckpoint,
 		CompactionBatchLimit:       cfg.ExperimentalCompactionBatchLimit,
+		InsecureHealthEndpoint:     cfg.InsecureHealthEndpoint,
 	}
 	print(e.cfg.logger, *cfg, srvcfg, memberInitialized)
 	if e.Server, err = etcdserver.NewServer(srvcfg); err != nil {
@@ -727,6 +728,23 @@ func (e *Etcd) serveClients() (err error) {
 	} else {
 		mux := http.NewServeMux()
 		etcdhttp.HandleBasic(mux, e.Server)
+		if len(e.cfg.InsecureHealthEndpoint) > 0 {
+			healthMux := http.NewServeMux()
+			etcdhttp.HandleHealth(healthMux, e.Server)
+			s := &http.Server{
+				Addr:    e.cfg.InsecureHealthEndpoint,
+				Handler: healthMux,
+			}
+			plog.Infof("starting insecure /health endpoint %s", s.Addr)
+			go func() {
+				err := s.ListenAndServe()
+				if err != nil {
+					plog.Errorf("insecure /health endpoint exited with error: %s", err)
+				} else {
+					plog.Infof("insecure /health endpoint exited")
+				}
+			}()
+		}
 		h = mux
 	}
 

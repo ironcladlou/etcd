@@ -241,6 +241,7 @@ func newConfig() *config {
 
 	// additional metrics
 	fs.StringVar(&cfg.ec.Metrics, "metrics", cfg.ec.Metrics, "Set level of detail for exported metrics, specify 'extensive' to include histogram metrics")
+	fs.StringVar(&cfg.ec.InsecureHealthEndpoint, "insecure-health-endpoint", cfg.ec.InsecureHealthEndpoint, "Create an additional /health HTTP listener on this address")
 
 	// auth
 	fs.StringVar(&cfg.ec.AuthToken, "auth-token", cfg.ec.AuthToken, "Specify auth token specific options.")
